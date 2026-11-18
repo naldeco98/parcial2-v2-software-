@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -10,13 +10,20 @@
         .container { max-width: 600px; margin: 40px auto; padding: 0 20px; }
         h1 { text-align: center; margin-bottom: 5px; }
         .welcome { text-align: center; color: #666; margin-bottom: 30px; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
         input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        select { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background: white; }
         button { padding: 10px 20px; background: #4a90d9; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
         button:hover { background: #357abd; }
         ul { list-style: none; }
         li { background: white; padding: 12px 15px; margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        li.done span { text-decoration: line-through; color: #999; }
+        li.done .task-text { text-decoration: line-through; color: #999; }
+        .task-info { display: flex; align-items: center; gap: 8px; flex: 1; }
+        .tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; color: white; font-weight: bold; }
+        .tag-personal { background: #9b59b6; }
+        .tag-trabajo { background: #e67e22; }
+        .tag-estudio { background: #2ecc71; }
+        .tag-urgente { background: #e74c3c; }
         .actions button { padding: 5px 10px; font-size: 13px; margin-left: 5px; }
         .btn-done { background: #27ae60; }
         .btn-done:hover { background: #1e8c4c; }
@@ -29,31 +36,46 @@
     <div class="container">
         <h1>📋 Gestor de Tareas</h1>
         <p class="welcome">Bienvenido — Organizá tus tareas de forma simple</p>
+
         <div class="input-group">
             <input type="text" id="taskInput" placeholder="Nueva tarea..." onkeypress="if(event.key==='Enter') addTask()">
+            <select id="tagSelect">
+                <option value="">Sin etiqueta</option>
+                <option value="personal">Personal</option>
+                <option value="trabajo">Trabajo</option>
+                <option value="estudio">Estudio</option>
+                <option value="urgente">Urgente</option>
+            </select>
             <button onclick="addTask()">Agregar</button>
         </div>
+
         <ul id="taskList"></ul>
         <p class="empty" id="emptyMsg">No hay tareas. ¡Agregá una!</p>
     </div>
+
     <script>
         let tasks = [];
+
         function addTask() {
             const input = document.getElementById('taskInput');
+            const tag = document.getElementById('tagSelect').value;
             const text = input.value.trim();
             if (!text) return;
-            tasks.push({ text, done: false });
+            tasks.push({ text, tag, done: false });
             input.value = '';
             render();
         }
+
         function toggleTask(i) {
             tasks[i].done = !tasks[i].done;
             render();
         }
+
         function deleteTask(i) {
             tasks.splice(i, 1);
             render();
         }
+
         function render() {
             const list = document.getElementById('taskList');
             const msg = document.getElementById('emptyMsg');
@@ -62,8 +84,12 @@
             tasks.forEach((t, i) => {
                 const li = document.createElement('li');
                 if (t.done) li.classList.add('done');
+                const tagHTML = t.tag ? `<span class="tag tag-${t.tag}">${t.tag}</span>` : '';
                 li.innerHTML = `
-                    <span>${t.text}</span>
+                    <div class="task-info">
+                        <span class="task-text">${t.text}</span>
+                        ${tagHTML}
+                    </div>
                     <div class="actions">
                         <button class="btn-done" onclick="toggleTask(${i})">${t.done ? '↩' : '✔'}</button>
                         <button class="btn-delete" onclick="deleteTask(${i})">✖</button>
